@@ -4,13 +4,14 @@ const ctx = canvas.getContext("2d");
 canvas.width = 320;
 canvas.height = 480;
 
-const GRAVITY = 0.2; // Lower gravity for slower fall
-const FLAP = -5; // Flap strength for a controlled jump
+const GRAVITY = 0.2;
+const FLAP = -5;
 const SPAWN_RATE = 90;
 const PIPE_WIDTH = 50;
 const PIPE_SPACING = 150;
-const MAX_FALL_SPEED = 5; // Maximum speed at which the bird can fall
-const MIN_PIPE_GAP = 100; // Minimum gap distance between pipes
+const MAX_FALL_SPEED = 5;
+const MIN_PIPE_GAP = 100; // Minimum gap height between pipes
+const MIN_PIPE_DISTANCE = 150; // Minimum horizontal distance between pipes
 
 let bird = {
     x: 50,
@@ -19,18 +20,13 @@ let bird = {
     height: 20,
     velocity: 0,
     flapStrength: FLAP,
-    canFlap: true, // Control flapping frequency
+    canFlap: true,
     move() {
         this.velocity += GRAVITY;
-        
-        // Cap the fall speed to prevent the bird from falling too quickly
         if (this.velocity > MAX_FALL_SPEED) {
             this.velocity = MAX_FALL_SPEED;
         }
-
         this.y += this.velocity;
-
-        // Stop the bird from going below the canvas
         if (this.y > canvas.height - this.height) {
             this.y = canvas.height - this.height;
             this.velocity = 0;
@@ -38,12 +34,11 @@ let bird = {
     },
     flap() {
         if (this.canFlap) {
-            this.velocity = this.flapStrength; // Apply flap strength
+            this.velocity = this.flapStrength;
             this.canFlap = false;
-            // Allow flapping again after a small delay
             setTimeout(() => {
                 this.canFlap = true;
-            }, 200); // 200ms delay to prevent multiple flaps too quickly
+            }, 200);
         }
     },
     draw() {
@@ -57,13 +52,16 @@ let score = 0;
 let isGameOver = false;
 
 function createPipe() {
-    // Ensure gap distance is large enough
+    // Ensure there is a minimum gap between pipes
+    let lastPipe = pipes[pipes.length - 1];
+    let xPosition = lastPipe ? lastPipe.x + PIPE_WIDTH + Math.random() * (MIN_PIPE_DISTANCE - PIPE_WIDTH) : canvas.width;
+
     const gapPosition = Math.random() * (canvas.height - PIPE_SPACING - MIN_PIPE_GAP) + MIN_PIPE_GAP;
     pipes.push({
-        x: canvas.width,
+        x: xPosition,
         topHeight: gapPosition,
         bottomHeight: canvas.height - gapPosition - PIPE_SPACING,
-        scored: false, // Prevents scoring multiple times for a single pipe
+        scored: false,
     });
 }
 
@@ -77,17 +75,17 @@ function drawPipes() {
 
 function movePipes() {
     pipes.forEach(pipe => {
-        pipe.x -= 2; // Move pipes left
+        pipe.x -= 2;
     });
 }
 
 function removeOffScreenPipes() {
-    pipes = pipes.filter(pipe => pipe.x + PIPE_WIDTH > 0); // Remove pipes that go off-screen
+    pipes = pipes.filter(pipe => pipe.x + PIPE_WIDTH > 0);
 }
 
 function detectCollisions() {
     if (bird.y + bird.height > canvas.height || bird.y < 0) {
-        isGameOver = true; // Game over if bird hits ground or top
+        isGameOver = true;
     }
 
     pipes.forEach(pipe => {
@@ -96,7 +94,7 @@ function detectCollisions() {
             bird.x < pipe.x + PIPE_WIDTH &&
             (bird.y < pipe.topHeight || bird.y + bird.height > pipe.topHeight + PIPE_SPACING)
         ) {
-            isGameOver = true; // Game over if bird collides with pipes
+            isGameOver = true;
         }
     });
 }
@@ -122,7 +120,7 @@ function gameLoop() {
     bird.draw();
 
     if (Math.random() < 1 / SPAWN_RATE) {
-        createPipe(); // Spawn a new pipe periodically
+        createPipe(); 
     }
 
     drawPipes();
@@ -135,18 +133,17 @@ function gameLoop() {
     pipes.forEach(pipe => {
         if (pipe.x + PIPE_WIDTH < bird.x && !pipe.scored) {
             pipe.scored = true;
-            score++; // Increase score when the bird passes a pipe
+            score++; 
         }
     });
 
-    requestAnimationFrame(gameLoop); // Keep the game loop going
+    requestAnimationFrame(gameLoop);
 }
 
 document.addEventListener("click", () => {
     if (!isGameOver) {
         bird.flap();
     } else {
-        // Restart the game if it is over
         bird.y = 150;
         bird.velocity = 0;
         pipes = [];
@@ -156,4 +153,4 @@ document.addEventListener("click", () => {
     }
 });
 
-gameLoop(); // Start the game loop
+gameLoop();
