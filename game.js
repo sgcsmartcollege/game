@@ -10,6 +10,7 @@ const SPAWN_RATE = 90;
 const PIPE_WIDTH = 50;
 const PIPE_SPACING = 150;
 const MAX_FALL_SPEED = 5; // Maximum speed at which the bird can fall
+const MIN_PIPE_GAP = 100; // Minimum gap distance between pipes
 
 let bird = {
     x: 50,
@@ -56,7 +57,8 @@ let score = 0;
 let isGameOver = false;
 
 function createPipe() {
-    const gapPosition = Math.random() * (canvas.height - PIPE_SPACING - 50) + 50; // Ensure gap is not too close to edges
+    // Ensure gap distance is large enough
+    const gapPosition = Math.random() * (canvas.height - PIPE_SPACING - MIN_PIPE_GAP) + MIN_PIPE_GAP;
     pipes.push({
         x: canvas.width,
         topHeight: gapPosition,
