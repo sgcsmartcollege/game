@@ -4,8 +4,8 @@ const ctx = canvas.getContext("2d");
 canvas.width = 320;
 canvas.height = 480;
 
-const GRAVITY = 0.6;
-const FLAP = -15;
+const GRAVITY = 0.5; // Slightly lower gravity for smoother descent
+const FLAP = -10; // Flap strength adjusted for better control
 const SPAWN_RATE = 90;
 const PIPE_WIDTH = 50;
 const PIPE_SPACING = 150;
@@ -16,12 +16,20 @@ let bird = {
     width: 20,
     height: 20,
     velocity: 0,
-    flap() {
-        this.velocity = FLAP;
-    },
+    flapStrength: FLAP,
     move() {
         this.velocity += GRAVITY;
         this.y += this.velocity;
+
+        // Limit the bird's falling speed for smoother movement
+        if (this.velocity > 10) this.velocity = 10;
+        if (this.y > canvas.height - this.height) {
+            this.y = canvas.height - this.height;
+            this.velocity = 0;
+        }
+    },
+    flap() {
+        this.velocity = this.flapStrength;
     },
     draw() {
         ctx.fillStyle = "#ff0";
