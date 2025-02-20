@@ -50,11 +50,12 @@ let score = 0;
 let isGameOver = false;
 
 function createPipe() {
-    const gapPosition = Math.random() * (canvas.height - PIPE_SPACING);
+    const gapPosition = Math.random() * (canvas.height - PIPE_SPACING - 50) + 50; // Ensure gap is not too close to edges
     pipes.push({
         x: canvas.width,
         topHeight: gapPosition,
         bottomHeight: canvas.height - gapPosition - PIPE_SPACING,
+        scored: false, // Prevents scoring multiple times for a single pipe
     });
 }
 
@@ -68,17 +69,17 @@ function drawPipes() {
 
 function movePipes() {
     pipes.forEach(pipe => {
-        pipe.x -= 2;
+        pipe.x -= 2; // Move pipes left
     });
 }
 
 function removeOffScreenPipes() {
-    pipes = pipes.filter(pipe => pipe.x + PIPE_WIDTH > 0);
+    pipes = pipes.filter(pipe => pipe.x + PIPE_WIDTH > 0); // Remove pipes that go off-screen
 }
 
 function detectCollisions() {
     if (bird.y + bird.height > canvas.height || bird.y < 0) {
-        isGameOver = true;
+        isGameOver = true; // Game over if bird hits ground or top
     }
 
     pipes.forEach(pipe => {
@@ -87,7 +88,7 @@ function detectCollisions() {
             bird.x < pipe.x + PIPE_WIDTH &&
             (bird.y < pipe.topHeight || bird.y + bird.height > pipe.topHeight + PIPE_SPACING)
         ) {
-            isGameOver = true;
+            isGameOver = true; // Game over if bird collides with pipes
         }
     });
 }
@@ -113,7 +114,7 @@ function gameLoop() {
     bird.draw();
 
     if (Math.random() < 1 / SPAWN_RATE) {
-        createPipe();
+        createPipe(); // Spawn a new pipe periodically
     }
 
     drawPipes();
@@ -126,18 +127,18 @@ function gameLoop() {
     pipes.forEach(pipe => {
         if (pipe.x + PIPE_WIDTH < bird.x && !pipe.scored) {
             pipe.scored = true;
-            score++;
+            score++; // Increase score when the bird passes a pipe
         }
     });
 
-    requestAnimationFrame(gameLoop);
+    requestAnimationFrame(gameLoop); // Keep the game loop going
 }
 
 document.addEventListener("click", () => {
     if (!isGameOver) {
         bird.flap();
     } else {
-        // Restart game
+        // Restart the game if it is over
         bird.y = 150;
         bird.velocity = 0;
         pipes = [];
@@ -147,4 +148,4 @@ document.addEventListener("click", () => {
     }
 });
 
-gameLoop();
+gameLoop(); // Start the game loop
