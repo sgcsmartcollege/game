@@ -5,7 +5,7 @@ canvas.width = 320;
 canvas.height = 480;
 
 const GRAVITY = 0.5; // Slightly lower gravity for smoother descent
-const FLAP = -10; // Flap strength adjusted for better control
+const FLAP = -6; // Reduced flap strength for lower jumps
 const SPAWN_RATE = 90;
 const PIPE_WIDTH = 50;
 const PIPE_SPACING = 150;
