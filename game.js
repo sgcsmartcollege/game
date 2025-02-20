@@ -4,8 +4,8 @@ const ctx = canvas.getContext("2d");
 canvas.width = 320;
 canvas.height = 480;
 
-const GRAVITY = 0.5; // Slightly lower gravity for smoother descent
-const FLAP = -6; // Reduced flap strength for lower jumps
+const GRAVITY = 0.5; // Slight gravity for smooth descent
+const FLAP = -6; // Reduced flap strength for controlled jumps
 const SPAWN_RATE = 90;
 const PIPE_WIDTH = 50;
 const PIPE_SPACING = 150;
@@ -17,11 +17,12 @@ let bird = {
     height: 20,
     velocity: 0,
     flapStrength: FLAP,
+    canFlap: true, // Control flapping frequency
     move() {
         this.velocity += GRAVITY;
         this.y += this.velocity;
 
-        // Limit the bird's falling speed for smoother movement
+        // Limit the bird's falling speed
         if (this.velocity > 10) this.velocity = 10;
         if (this.y > canvas.height - this.height) {
             this.y = canvas.height - this.height;
@@ -29,7 +30,14 @@ let bird = {
         }
     },
     flap() {
-        this.velocity = this.flapStrength;
+        if (this.canFlap) {
+            this.velocity = this.flapStrength;
+            this.canFlap = false;
+            // Allow flapping again after a small delay
+            setTimeout(() => {
+                this.canFlap = true;
+            }, 150); // 150ms delay to prevent multiple flaps too quickly
+        }
     },
     draw() {
         ctx.fillStyle = "#ff0";
